@@ -1,5 +1,9 @@
 # Exercise 2
 
+## Link
+
+<https://typescript-exercises.github.io/#exercise=2&file=%2Findex.ts>
+
 ## Intro
 
 All 2 users liked the idea of the community.

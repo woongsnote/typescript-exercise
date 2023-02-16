@@ -38,24 +38,3 @@
            with improvements!
         4. Provide feedback to the creator of these exercises.
         5. Enjoy.
-
-Brief UI guide:
-
-    +--------------------------------------------------------------+
-    | TypeScript exercises                                         |
-    +--------------------------------------------------------------+
-    | Exercises 1·2·3·4...   << Navigate through exercises >>      |
-    +---------------+----------------------------------------------+
-    | Files         | file.ts   << Filename and status >>          |
-    +---------------+----------------------------------------------+
-    | file.ts       | 1  import {x} from 'y';                      |
-    | dir           | 2                                            |
-    |   sub.ts      | 3                                            |
-    |               |                                              |
-    | << Current    |   << Currently selected file code editor >>  |
-    | exercise file |                                              |
-    | structure >>  +----------------------------------------------+
-    |               |                                              |
-    |               |   << Errors to fix in order to proceed >>    |
-    |               |                                              |
-    +---------------+----------------------------------------------+
