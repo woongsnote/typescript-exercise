@@ -26,142 +26,155 @@ Remove UsersApiResponse and AdminsApiResponse types and use generic type ApiResp
 
 ```ts
 interface User {
-    type: 'user';
-    name: string;
-    age: number;
-    occupation: string;
+  type: "user";
+  name: string;
+  age: number;
+  occupation: string;
 }
 
 interface Admin {
-    type: 'admin';
-    name: string;
-    age: number;
-    role: string;
+  type: "admin";
+  name: string;
+  age: number;
+  role: string;
 }
 
 type Person = User | Admin;
 
 const admins: Admin[] = [
-    { type: 'admin', name: 'Jane Doe', age: 32, role: 'Administrator' },
-    { type: 'admin', name: 'Bruce Willis', age: 64, role: 'World saver' }
+  { type: "admin", name: "Jane Doe", age: 32, role: "Administrator" },
+  { type: "admin", name: "Bruce Willis", age: 64, role: "World saver" },
 ];
 
 const users: User[] = [
-    { type: 'user', name: 'Max Mustermann', age: 25, occupation: 'Chimney sweep' },
-    { type: 'user', name: 'Kate Müller', age: 23, occupation: 'Astronaut' }
+  {
+    type: "user",
+    name: "Max Mustermann",
+    age: 25,
+    occupation: "Chimney sweep",
+  },
+  { type: "user", name: "Kate Müller", age: 23, occupation: "Astronaut" },
 ];
 
 export type ApiResponse<T> = unknown;
 
-type AdminsApiResponse = (
-    {
-        status: 'success';
-        data: Admin[];
-    } |
-    {
-        status: 'error';
-        error: string;
+type AdminsApiResponse =
+  | {
+      status: "success";
+      data: Admin[];
     }
-);
+  | {
+      status: "error";
+      error: string;
+    };
 
 export function requestAdmins(callback: (response: AdminsApiResponse) => void) {
-    callback({
-        status: 'success',
-        data: admins
-    });
+  callback({
+    status: "success",
+    data: admins,
+  });
 }
 
-type UsersApiResponse = (
-    {
-        status: 'success';
-        data: User[];
-    } |
-    {
-        status: 'error';
-        error: string;
+type UsersApiResponse =
+  | {
+      status: "success";
+      data: User[];
     }
-);
+  | {
+      status: "error";
+      error: string;
+    };
 
 export function requestUsers(callback: (response: UsersApiResponse) => void) {
-    callback({
-        status: 'success',
-        data: users
-    });
+  callback({
+    status: "success",
+    data: users,
+  });
 }
 
-export function requestCurrentServerTime(callback: (response: unknown) => void) {
-    callback({
-        status: 'success',
-        data: Date.now()
-    });
+export function requestCurrentServerTime(
+  callback: (response: unknown) => void
+) {
+  callback({
+    status: "success",
+    data: Date.now(),
+  });
 }
 
-export function requestCoffeeMachineQueueLength(callback: (response: unknown) => void) {
-    callback({
-        status: 'error',
-        error: 'Numeric value has exceeded Number.MAX_SAFE_INTEGER.'
-    });
+export function requestCoffeeMachineQueueLength(
+  callback: (response: unknown) => void
+) {
+  callback({
+    status: "error",
+    error: "Numeric value has exceeded Number.MAX_SAFE_INTEGER.",
+  });
 }
 
 function logPerson(person: Person) {
-    console.log(
-        ` - ${person.name}, ${person.age}, ${person.type === 'admin' ? person.role : person.occupation}`
-    );
+  console.log(
+    ` - ${person.name}, ${person.age}, ${
+      person.type === "admin" ? person.role : person.occupation
+    }`
+  );
 }
 
 function startTheApp(callback: (error: Error | null) => void) {
-    requestAdmins((adminsResponse) => {
-        console.log('Admins:');
-        if (adminsResponse.status === 'success') {
-            adminsResponse.data.forEach(logPerson);
+  requestAdmins((adminsResponse) => {
+    console.log("Admins:");
+    if (adminsResponse.status === "success") {
+      adminsResponse.data.forEach(logPerson);
+    } else {
+      return callback(new Error(adminsResponse.error));
+    }
+
+    console.log();
+
+    requestUsers((usersResponse) => {
+      console.log("Users:");
+      if (usersResponse.status === "success") {
+        usersResponse.data.forEach(logPerson);
+      } else {
+        return callback(new Error(usersResponse.error));
+      }
+
+      console.log();
+
+      requestCurrentServerTime((serverTimeResponse) => {
+        console.log("Server time:");
+        if (serverTimeResponse.status === "success") {
+          console.log(
+            `   ${new Date(serverTimeResponse.data).toLocaleString()}`
+          );
         } else {
-            return callback(new Error(adminsResponse.error));
+          return callback(new Error(serverTimeResponse.error));
         }
 
         console.log();
 
-        requestUsers((usersResponse) => {
-            console.log('Users:');
-            if (usersResponse.status === 'success') {
-                usersResponse.data.forEach(logPerson);
-            } else {
-                return callback(new Error(usersResponse.error));
-            }
+        requestCoffeeMachineQueueLength((coffeeMachineQueueLengthResponse) => {
+          console.log("Coffee machine queue length:");
+          if (coffeeMachineQueueLengthResponse.status === "success") {
+            console.log(`   ${coffeeMachineQueueLengthResponse.data}`);
+          } else {
+            return callback(new Error(coffeeMachineQueueLengthResponse.error));
+          }
 
-            console.log();
-
-            requestCurrentServerTime((serverTimeResponse) => {
-                console.log('Server time:');
-                if (serverTimeResponse.status === 'success') {
-                    console.log(`   ${new Date(serverTimeResponse.data).toLocaleString()}`);
-                } else {
-                    return callback(new Error(serverTimeResponse.error));
-                }
-
-                console.log();
-
-                requestCoffeeMachineQueueLength((coffeeMachineQueueLengthResponse) => {
-                    console.log('Coffee machine queue length:');
-                    if (coffeeMachineQueueLengthResponse.status === 'success') {
-                        console.log(`   ${coffeeMachineQueueLengthResponse.data}`);
-                    } else {
-                        return callback(new Error(coffeeMachineQueueLengthResponse.error));
-                    }
-
-                    callback(null);
-                });
-            });
+          callback(null);
         });
+      });
     });
+  });
 }
 
 startTheApp((e: Error | null) => {
-    console.log();
-    if (e) {
-        console.log(`Error: "${e.message}", but it's fine, sometimes errors are inevitable.`)
-    } else {
-        console.log('Success!');
-    }
+  console.log();
+  if (e) {
+    console.log(
+      `Error: "${e.message}", but it's fine, sometimes errors are inevitable.`
+    );
+  } else {
+    console.log("Success!");
+  }
 });
 ```
 
@@ -169,150 +182,155 @@ startTheApp((e: Error | null) => {
 
 > why?
 
-- User에 대한 Interface가 없어서 생긴 문제
+- UsersApiResponse, AdminsApiResponse로 각각 선언된 응답의 중복 코드를 줄이기 위해, 제네릭한 ApiResponse 설계가 요구됨.
 
 > how?
 
-- 해당 Interface를 정의하여 해결
+- 제네릭 타입 T를 활용한 ApiResponse를 설계.
 
 ```ts
 interface User {
-    type: 'user';
-    name: string;
-    age: number;
-    occupation: string;
+  type: "user";
+  name: string;
+  age: number;
+  occupation: string;
 }
 
 interface Admin {
-    type: 'admin';
-    name: string;
-    age: number;
-    role: string;
+  type: "admin";
+  name: string;
+  age: number;
+  role: string;
 }
 
 type Person = User | Admin;
 
 const admins: Admin[] = [
-    { type: 'admin', name: 'Jane Doe', age: 32, role: 'Administrator' },
-    { type: 'admin', name: 'Bruce Willis', age: 64, role: 'World saver' }
+  { type: "admin", name: "Jane Doe", age: 32, role: "Administrator" },
+  { type: "admin", name: "Bruce Willis", age: 64, role: "World saver" },
 ];
 
 const users: User[] = [
-    { type: 'user', name: 'Max Mustermann', age: 25, occupation: 'Chimney sweep' },
-    { type: 'user', name: 'Kate Müller', age: 23, occupation: 'Astronaut' }
+  {
+    type: "user",
+    name: "Max Mustermann",
+    age: 25,
+    occupation: "Chimney sweep",
+  },
+  { type: "user", name: "Kate Müller", age: 23, occupation: "Astronaut" },
 ];
 
-export type ApiResponse<T> = unknown;
-
-type AdminsApiResponse = (
-    {
-        status: 'success';
-        data: Admin[];
-    } |
-    {
-        status: 'error';
-        error: string;
+export type ApiResponse<T> =
+  | {
+      status: "success";
+      data: T;
     }
-);
+  | {
+      status: "error";
+      error: string;
+    };
 
-export function requestAdmins(callback: (response: AdminsApiResponse) => void) {
-    callback({
-        status: 'success',
-        data: admins
-    });
+export function requestAdmins(
+  callback: (response: ApiResponse<Admin[]>) => void
+) {
+  callback({
+    status: "success",
+    data: admins,
+  });
 }
 
-type UsersApiResponse = (
-    {
-        status: 'success';
-        data: User[];
-    } |
-    {
-        status: 'error';
-        error: string;
-    }
-);
-
-export function requestUsers(callback: (response: UsersApiResponse) => void) {
-    callback({
-        status: 'success',
-        data: users
-    });
+export function requestUsers(
+  callback: (response: ApiResponse<User[]>) => void
+) {
+  callback({
+    status: "success",
+    data: users,
+  });
 }
 
-export function requestCurrentServerTime(callback: (response: unknown) => void) {
-    callback({
-        status: 'success',
-        data: Date.now()
-    });
+export function requestCurrentServerTime(
+  callback: (response: ApiResponse<number>) => void
+) {
+  callback({
+    status: "success",
+    data: Date.now(),
+  });
 }
 
-export function requestCoffeeMachineQueueLength(callback: (response: unknown) => void) {
-    callback({
-        status: 'error',
-        error: 'Numeric value has exceeded Number.MAX_SAFE_INTEGER.'
-    });
+export function requestCoffeeMachineQueueLength(
+  callback: (response: ApiResponse<number>) => void
+) {
+  callback({
+    status: "error",
+    error: "Numeric value has exceeded Number.MAX_SAFE_INTEGER.",
+  });
 }
 
 function logPerson(person: Person) {
-    console.log(
-        ` - ${person.name}, ${person.age}, ${person.type === 'admin' ? person.role : person.occupation}`
-    );
+  console.log(
+    ` - ${person.name}, ${person.age}, ${
+      person.type === "admin" ? person.role : person.occupation
+    }`
+  );
 }
 
 function startTheApp(callback: (error: Error | null) => void) {
-    requestAdmins((adminsResponse) => {
-        console.log('Admins:');
-        if (adminsResponse.status === 'success') {
-            adminsResponse.data.forEach(logPerson);
+  requestAdmins((adminsResponse) => {
+    console.log("Admins:");
+    if (adminsResponse.status === "success") {
+      adminsResponse.data.forEach(logPerson);
+    } else {
+      return callback(new Error(adminsResponse.error));
+    }
+
+    console.log();
+
+    requestUsers((usersResponse) => {
+      console.log("Users:");
+      if (usersResponse.status === "success") {
+        usersResponse.data.forEach(logPerson);
+      } else {
+        return callback(new Error(usersResponse.error));
+      }
+
+      console.log();
+
+      requestCurrentServerTime((serverTimeResponse) => {
+        console.log("Server time:");
+        if (serverTimeResponse.status === "success") {
+          console.log(
+            `   ${new Date(serverTimeResponse.data).toLocaleString()}`
+          );
         } else {
-            return callback(new Error(adminsResponse.error));
+          return callback(new Error(serverTimeResponse.error));
         }
 
         console.log();
 
-        requestUsers((usersResponse) => {
-            console.log('Users:');
-            if (usersResponse.status === 'success') {
-                usersResponse.data.forEach(logPerson);
-            } else {
-                return callback(new Error(usersResponse.error));
-            }
+        requestCoffeeMachineQueueLength((coffeeMachineQueueLengthResponse) => {
+          console.log("Coffee machine queue length:");
+          if (coffeeMachineQueueLengthResponse.status === "success") {
+            console.log(`   ${coffeeMachineQueueLengthResponse.data}`);
+          } else {
+            return callback(new Error(coffeeMachineQueueLengthResponse.error));
+          }
 
-            console.log();
-
-            requestCurrentServerTime((serverTimeResponse) => {
-                console.log('Server time:');
-                if (serverTimeResponse.status === 'success') {
-                    console.log(`   ${new Date(serverTimeResponse.data).toLocaleString()}`);
-                } else {
-                    return callback(new Error(serverTimeResponse.error));
-                }
-
-                console.log();
-
-                requestCoffeeMachineQueueLength((coffeeMachineQueueLengthResponse) => {
-                    console.log('Coffee machine queue length:');
-                    if (coffeeMachineQueueLengthResponse.status === 'success') {
-                        console.log(`   ${coffeeMachineQueueLengthResponse.data}`);
-                    } else {
-                        return callback(new Error(coffeeMachineQueueLengthResponse.error));
-                    }
-
-                    callback(null);
-                });
-            });
+          callback(null);
         });
+      });
     });
+  });
 }
 
 startTheApp((e: Error | null) => {
-    console.log();
-    if (e) {
-        console.log(`Error: "${e.message}", but it's fine, sometimes errors are inevitable.`)
-    } else {
-        console.log('Success!');
-    }
+  console.log();
+  if (e) {
+    console.log(
+      `Error: "${e.message}", but it's fine, sometimes errors are inevitable.`
+    );
+  } else {
+    console.log("Success!");
+  }
 });
 ```
 
