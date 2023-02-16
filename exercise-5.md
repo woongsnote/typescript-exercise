@@ -112,11 +112,11 @@ filterUsers(persons, {
 
 > why?
 
-- User에 대한 Interface가 없어서 생긴 문제
+- `criteria`의 타입 선언이 필요함.
 
 > how?
 
-- 해당 Interface를 정의하여 해결
+- User를 filtering하기 위해서는, 일부분만 필요하므로, `Partial`과 `Omit`을 활용하여 해결.
 
 ```ts
 interface User {
